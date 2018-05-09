@@ -26,11 +26,11 @@ environment:
   global:
     TOOLCHAIN: gcc
   matrix:
-  - MRUBY_VERSION: 1.4.0
+  - MRUBY_VERSION: 1.4.1
     COMPILER: C:\MinGW
-  - MRUBY_VERSION: 1.4.0
+  - MRUBY_VERSION: 1.4.1
     COMPILER: C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0
-  - MRUBY_VERSION: 1.4.0
+  - MRUBY_VERSION: 1.4.1
     COMPILER: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1
   - MRUBY_VERSION: head
     COMPILER: C:\MinGW

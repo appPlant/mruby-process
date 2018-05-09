@@ -35,10 +35,9 @@ def IO.sysopen(path, mod, *)
 end if OS.windows?
 
 def read(path)
-  f = File.open(path)
-  f.read.to_s.strip.sub("\r", '').sub("\n", '').downcase
-ensure
-  f.close if f
+  File.read("#{ENV['_TMP']}/#{path}").to_s.strip
+      .sub("\r", '').sub("\n", '')
+      .downcase
 end
 
 def wait_for_pid(pid)
@@ -112,7 +111,7 @@ assert('Process.spawn') do
   assert_raise(ArgumentError) { spawn }
   assert_raise(TypeError) { spawn 123 }
 
-  pid = spawn 'exit 0'
+  pid = spawn('exit 0')
   wait_for_pid(pid)
 
   assert_kind_of Integer, pid
@@ -122,41 +121,41 @@ assert('Process.spawn') do
   assert_equal $?.pid, pid
 
   var = "#{ENV['RAND']}x"
-  pid = spawn("echo #{var} > #{ENV['MRUBY_TMPDIR']}/spawn.txt")
+  pid = spawn("echo #{var} > #{ENV['_TMP']}/spawn.txt")
 
   wait_for_pid(pid)
-  assert_equal var, read("#{ENV['MRUBY_TMPDIR']}/spawn.txt")
+  assert_equal var, read('spawn.txt')
 end
 
 assert('Process.spawn', 'env') do
   var = "x#{ENV['RAND']}"
   env = OS.posix? ? '$MYVAR' : '%MYVAR%'
 
-  pid = spawn({ MYVAR: var }, "echo #{env} > #{ENV['MRUBY_TMPDIR']}/spawn.txt")
+  pid = spawn({ MYVAR: var }, "echo #{env} > #{ENV['_TMP']}/spawn.txt")
 
   wait_for_pid(pid)
-  assert_equal var, read("#{ENV['MRUBY_TMPDIR']}/spawn.txt")
+  assert_equal var, read('spawn.txt')
 end
 
 assert('Process.spawn', 'pipe stdout') do
   begin
     var = ENV['RAND']
-    pip = IO.sysopen("#{ENV['MRUBY_TMPDIR']}/pipe.txt", 'w+')
+    pip = IO.sysopen("#{ENV['_TMP']}/pipe.txt", 'w+')
     pid = spawn("echo #{var}", out: pip)
 
     wait_for_pid(pid)
-    assert_equal var, read("#{ENV['MRUBY_TMPDIR']}/pipe.txt")
+    assert_equal var, read('pipe.txt')
 
     env = OS.posix? ? '$MYVAR' : '%MYVAR%'
     pid = spawn({ MYVAR: var }, "echo #{env}", out: pip)
 
     wait_for_pid(pid)
-    assert_equal var * 2, read("#{ENV['MRUBY_TMPDIR']}/pipe.txt")
+    assert_equal var * 2, read('pipe.txt')
 
-    pid = spawn 'ruby', '-v', out: pip
+    pid = spawn('ruby', '-v', out: pip)
 
     wait_for_pid(pid)
-    assert_include read("#{ENV['MRUBY_TMPDIR']}/pipe.txt"), 'ruby'
+    assert_include read('pipe.txt'), 'ruby'
   ensure
     IO._sysclose(pip)
   end
@@ -164,12 +163,11 @@ end
 
 assert('Process.spawn', 'pipe stderr') do
   begin
-    pip = IO.sysopen("#{ENV['MRUBY_TMPDIR']}/pipe.err", 'w')
-    puts pip.inspect
+    pip = IO.sysopen("#{ENV['_TMP']}/pipe.err", 'w')
     pid = spawn('ruby unknown', err: pip)
 
     wait_for_pid(pid)
-    assert_false read("#{ENV['MRUBY_TMPDIR']}/pipe.err").empty?
+    assert_false read('pipe.err').empty?
   ensure
     IO._sysclose(pip)
   end
@@ -182,26 +180,26 @@ end
 
 assert_not_windows('Process.exec') do
   var = ENV['RAND']
-  pid = fork { exec({ MYVAR: var }, "echo $MYVAR > #{ENV['MRUBY_TMPDIR']}/exec.txt") }
+  pid = fork { exec({ MYVAR: var }, "echo $MYVAR > #{ENV['_TMP']}/exec.txt") }
 
   wait_for_pid(pid)
-  assert_equal var, read("#{ENV['MRUBY_TMPDIR']}/exec.txt")
+  assert_equal var, read('exec.txt')
 
   var = "x#{var}"
-  pid = fork { exec '/bin/sh', '-c', "echo #{var} > #{ENV['MRUBY_TMPDIR']}/exec.txt" }
+  pid = fork { exec '/bin/sh', '-c', "echo #{var} > #{ENV['_TMP']}/exec.txt" }
 
   wait_for_pid(pid)
-  assert_equal var, read("#{ENV['MRUBY_TMPDIR']}/exec.txt")
+  assert_equal var, read('exec.txt')
 end
 
 assert_not_windows('Process.exec', '$SHELL') do
   ['/bin/bash', '/bin/sh'].each do |shell|
     ENV['SHELL'] = shell
 
-    pid = fork { exec "echo $SHELL > #{ENV['MRUBY_TMPDIR']}/exec.txt" }
+    pid = fork { exec "echo $SHELL > #{ENV['_TMP']}/exec.txt" }
     wait_for_pid(pid)
 
-    assert_equal shell, read("#{ENV['MRUBY_TMPDIR']}/exec.txt")
+    assert_equal shell, read('exec.txt')
   end
 end
 
@@ -223,7 +221,7 @@ assert('Process.wait2') do
   assert_nil p
   assert_nil st
 
-  Process.kill :KILL, pid
+  Process.kill(:KILL, pid)
 
   loop do
     p, st = Process.waitpid2(pid, Process::WNOHANG)
@@ -276,9 +274,9 @@ assert('Process.system') do
   var = ENV['RAND']
   env = OS.posix? ? '$MYVAR' : '%MYVAR%'
 
-  system({ MYVAR: var }, "echo #{env} > #{ENV['MRUBY_TMPDIR']}/system.txt")
+  system({ MYVAR: var }, "echo #{env} > #{ENV['_TMP']}/system.txt")
 
-  assert_equal var, read("#{ENV['MRUBY_TMPDIR']}/system.txt")
+  assert_equal var, read('system.txt')
 end
 
 assert_windows('Process.fork') do

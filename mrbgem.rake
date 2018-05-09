@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 require "#{MRUBY_ROOT}/lib/mruby/source"
-require 'tempfile'
 
 def target_win32?
   return true if RUBY_PLATFORM =~ /mingw|mswin/
@@ -50,7 +49,8 @@ MRuby::Gem::Specification.new('mruby-process') do |spec|
 
   if build.test_enabled?
     ENV['RAND'] = Time.now.to_i.to_s
-    ENV['MRUBY_TMPDIR'] = Dir.mktmpdir
+    ENV['_TMP'] = File.join(dir, 'tmp')
+    FileUtils.mkdir_p(ENV['_TMP'])
   end
 
   if target_win32?

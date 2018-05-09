@@ -31,7 +31,8 @@ Add the line below to your `build_config.rb`:
 ```ruby
 MRuby::Build.new do |conf|
   # ... (snip) ...
-  conf.gem 'mruby-process'
+  conf.gem 'mruby-process2'
+  # conf.gem github: 'appPlant/mruby-process'
 end
 ```
 
@@ -40,7 +41,7 @@ Or add this line to your aplication's `mrbgem.rake`:
 ```ruby
 MRuby::Gem::Specification.new('your-mrbgem') do |spec|
   # ... (snip) ...
-  spec.add_dependency 'mruby-process'
+  spec.add_dependency 'mruby-process', mgem 'mruby-process2'
 end
 ```
 
