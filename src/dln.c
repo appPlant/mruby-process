@@ -26,11 +26,20 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32
 #ifndef PATH_ENV
 # define PATH_ENV "Path"
 #endif
 #ifndef PATH_SEP
 # define PATH_SEP ";"
+#endif
+#else
+#ifndef PATH_ENV
+# define PATH_ENV "PATH"
+#endif
+#ifndef PATH_SEP
+# define PATH_SEP ":"
+#endif
 #endif
 
 #ifdef _WIN32
