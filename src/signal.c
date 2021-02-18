@@ -221,7 +221,7 @@ signo2signm(int no)
 static mrb_value
 mrb_sig_signame(mrb_state *mrb, mrb_value klass)
 {
-    int signo;
+    mrb_int signo;
     const char *signame;
 
     mrb_get_args(mrb, "i", &signo);
